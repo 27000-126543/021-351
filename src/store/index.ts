@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
-import type { InspectionReport, IssueRecord, ProjectInfo } from '@/types';
+import type { InspectionReport, IssueRecord, ProjectInfo, IssueTracking } from '@/types';
 import { generateId } from '@/utils';
+import { mergeReportsWithLocal } from '@/data/reports';
 
 const STORAGE_KEY = 'salary_inspect_reports';
 
@@ -11,8 +12,17 @@ const loadReportsFromStorage = (): InspectionReport[] => {
     if (stored) {
       const parsed = JSON.parse(stored);
       console.log('[Store] 从本地加载纪要:', parsed.length, '条');
-      return parsed;
+      const merged = mergeReportsWithLocal(parsed);
+      if (merged.length !== parsed.length) {
+        console.log('[Store] 合并历史mock数据，共', merged.length, '条');
+        Taro.setStorageSync(STORAGE_KEY, JSON.stringify(merged));
+      }
+      return merged;
     }
+    console.log('[Store] 本地无存储，使用历史mock数据');
+    const merged = mergeReportsWithLocal([]);
+    Taro.setStorageSync(STORAGE_KEY, JSON.stringify(merged));
+    return merged;
   } catch (e) {
     console.error('[Store] 读取本地存储失败:', e);
   }
@@ -38,11 +48,13 @@ interface InspectionStore {
   setCurrentReportById: (id: string) => void;
   addIssue: (issue: IssueRecord) => void;
   updateIssue: (issueId: string, updates: Partial<IssueRecord>) => void;
+  updateIssueTracking: (issueId: string, tracking: IssueTracking) => void;
   deleteIssue: (issueId: string) => void;
   setProjectSign: (sign: string) => void;
   setInspectorSign: (sign: string) => void;
   completeReport: () => void;
   resetCurrent: () => void;
+  saveCurrent: () => void;
 }
 
 export const useInspectionStore = create<InspectionStore>((set, get) => ({
@@ -81,7 +93,26 @@ export const useInspectionStore = create<InspectionStore>((set, get) => ({
     return newReport;
   },
 
-  setCurrentReport: (report) => set({ currentReport: report }),
+  setCurrentReport: (report) => {
+    if (!report) {
+      set({ currentReport: null });
+      return;
+    }
+
+    const { allReports } = get();
+    const existsIdx = allReports.findIndex(r => r.id === report.id);
+    let updated: InspectionReport[];
+    
+    if (existsIdx >= 0) {
+      updated = allReports.map(r => r.id === report.id ? report : r);
+    } else {
+      updated = [report, ...allReports];
+    }
+
+    set({ currentReport: report, allReports: updated });
+    saveReportsToStorage(updated);
+    console.log('[Store] 设置当前纪要并保存:', report.id);
+  },
 
   setCurrentReportById: (id: string) => {
     const { allReports } = get();
@@ -129,6 +160,25 @@ export const useInspectionStore = create<InspectionStore>((set, get) => ({
     set({ currentReport: updatedReport, allReports: updatedReports });
     saveReportsToStorage(updatedReports);
     console.log('[Store] 更新问题:', issueId);
+  },
+
+  updateIssueTracking: (issueId: string, tracking: IssueTracking) => {
+    const { currentReport, allReports } = get();
+    if (!currentReport) return;
+
+    const updatedIssues = currentReport.issues.map(issue =>
+      issue.id === issueId ? { ...issue, tracking } : issue
+    );
+
+    const updatedReport: InspectionReport = {
+      ...currentReport,
+      issues: updatedIssues,
+    };
+
+    const updatedReports = allReports.map(r => r.id === updatedReport.id ? updatedReport : r);
+    set({ currentReport: updatedReport, allReports: updatedReports });
+    saveReportsToStorage(updatedReports);
+    console.log('[Store] 更新问题整改跟踪:', issueId);
   },
 
   deleteIssue: (issueId: string) => {
@@ -194,4 +244,13 @@ export const useInspectionStore = create<InspectionStore>((set, get) => ({
   },
 
   resetCurrent: () => set({ currentReport: null }),
+
+  saveCurrent: () => {
+    const { currentReport, allReports } = get();
+    if (!currentReport) return;
+    
+    const updatedReports = allReports.map(r => r.id === currentReport.id ? currentReport : r);
+    saveReportsToStorage(updatedReports);
+    console.log('[Store] 手动保存当前纪要');
+  },
 }));

@@ -1,0 +1,322 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: #eef1f6;
+  padding: $spacing-md;
+  padding-bottom: 120rpx;
+}
+
+.previewWrap {
+  background-color: #ffffff;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: $spacing-xl;
+  max-width: 800rpx;
+  margin: 0 auto;
+}
+
+.reportTitle {
+  text-align: center;
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 4rpx double $color-primary;
+}
+
+.reportMeta {
+  text-align: center;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-lg;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  padding-left: $spacing-sm;
+  border-left: 6rpx solid $color-primary;
+}
+
+.infoTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.infoRow {
+  display: flex;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  width: 180rpx;
+  padding: $spacing-sm;
+  background-color: $color-bg-gray;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  flex: 1;
+  padding: $spacing-sm;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.salaryTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.salaryHeader {
+  display: flex;
+  background-color: $color-primary-bg;
+}
+
+.salaryCell {
+  flex: 1;
+  padding: $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-primary;
+  text-align: center;
+}
+
+.salaryRow {
+  display: flex;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.salaryData {
+  flex: 1;
+  padding: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-align: center;
+}
+
+.salaryDataHighlight {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.workerList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.workerTag {
+  padding: 8rpx 16rpx;
+  background-color: $color-bg-gray;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.issueItem {
+  margin-bottom: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-gray;
+  border-radius: $radius-md;
+  border-left: 4rpx solid $color-error;
+}
+
+.issueHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.issueType {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.issueTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.issueContent {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  margin-bottom: $spacing-sm;
+}
+
+.issueTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.issueTag {
+  padding: 4rpx 12rpx;
+  background-color: $color-error-bg;
+  color: $color-error;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+}
+
+.trackingSection {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx dashed $color-border;
+}
+
+.trackingTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.trackingInfo {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.noIssue {
+  text-align: center;
+  padding: $spacing-lg;
+  color: $color-text-tertiary;
+  font-size: $font-size-md;
+}
+
+.summaryText {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.8;
+  text-indent: 2em;
+}
+
+.signatureSection {
+  margin-top: $spacing-xl;
+}
+
+.signatureRow {
+  display: flex;
+  gap: $spacing-lg;
+}
+
+.signatureItem {
+  flex: 1;
+  text-align: center;
+}
+
+.signatureLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.signatureBox {
+  height: 120rpx;
+  border: 2rpx dashed $color-border;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-sm;
+}
+
+.signatureText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.signatureSigned {
+  font-size: 40rpx;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  font-family: cursive;
+}
+
+.signatureDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.footer {
+  text-align: center;
+  margin-top: $spacing-xl;
+  padding-top: $spacing-lg;
+  border-top: 1rpx solid $color-divider;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+  z-index: 100;
+}
+
+.backBtn {
+  width: 160rpx;
+  height: $button-height-lg;
+  background-color: $color-bg-gray;
+  color: $color-text-secondary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.exportBtn {
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}

@@ -1,0 +1,224 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.content {
+  padding: $spacing-md $page-padding;
+}
+
+.issueCard {
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border-left: 6rpx solid $color-error;
+}
+
+.issueHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.issueType {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.issueTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.issueWorker {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.issueDesc {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.issueTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.sectionCard {
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitleRequired::before {
+  content: '*';
+  color: $color-error;
+  margin-right: 4rpx;
+}
+
+.formRow {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.formLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  height: $button-height-md;
+  padding: 0 $spacing-md;
+  background-color: $color-bg-gray;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border: none;
+  box-sizing: border-box;
+}
+
+.statusSelector {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.statusItem {
+  padding: 12rpx 24rpx;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.statusItemActive {
+  border-color: transparent;
+  font-weight: $font-weight-medium;
+}
+
+.statusPending {
+  background-color: $color-warning-bg;
+  color: $color-warning;
+}
+
+.statusProcessing {
+  background-color: $color-primary-bg;
+  color: $color-primary;
+}
+
+.statusCompleted {
+  background-color: $color-success-bg;
+  color: $color-success;
+}
+
+.statusVerified {
+  background-color: $color-success-bg;
+  color: $color-success;
+}
+
+.textareaWrap {
+  background-color: $color-bg-gray;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 180rpx;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.wordCount {
+  text-align: right;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+  z-index: 100;
+}
+
+.cancelBtn {
+  flex: 1;
+  height: $button-height-lg;
+  background-color: $color-bg-gray;
+  color: $color-text-secondary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.submitBtn {
+  flex: 2;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}

@@ -131,6 +131,13 @@
   gap: $spacing-sm;
 }
 
+.trackingInfo {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-gray;
+  border-radius: $radius-md;
+}
+
 .issueActions {
   display: flex;
   gap: $spacing-sm;

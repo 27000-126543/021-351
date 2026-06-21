@@ -32,6 +32,16 @@ export interface Worker {
   phone?: string;
 }
 
+export type IssueTrackStatus = 'pending' | 'processing' | 'completed' | 'verified';
+
+export interface IssueTracking {
+  responsibleUnit: string;
+  deadline: string;
+  status: IssueTrackStatus;
+  reviewNote: string;
+  updateTime: string;
+}
+
 export interface IssueRecord {
   id: string;
   workerId?: string;
@@ -42,7 +52,15 @@ export interface IssueRecord {
   tags: string[];
   createTime: string;
   inspector: string;
+  tracking?: IssueTracking;
 }
+
+export const ISSUE_TRACK_STATUS: { value: IssueTrackStatus; label: string; color: string }[] = [
+  { value: 'pending', label: '待整改', color: 'warning' },
+  { value: 'processing', label: '整改中', color: 'info' },
+  { value: 'completed', label: '已整改', color: 'success' },
+  { value: 'verified', label: '已复核', color: 'success' },
+];
 
 export type IssueType = 'salary' | 'info' | 'material' | 'other';
 
@@ -68,7 +86,7 @@ export interface InspectionReport {
   projectSign?: string;
   inspectorSign?: string;
   status: 'draft' | 'completed';
-  sampledWorkerNames?: string[];
+  sampledWorkerNames: string[];
 }
 
 export interface UserInfo {

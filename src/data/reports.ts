@@ -5,6 +5,18 @@ export const mockReports: InspectionReport[] = [
     id: 'r001',
     projectId: 'p001',
     projectName: '市民中心建设项目',
+    projectInfo: {
+      bankName: '中国建设银行 XX 支行',
+      bankAccount: '6227 **** **** 8888',
+      generalContractor: 'XX 建设集团有限公司',
+      subcontractors: ['XX 劳务有限公司', 'XX 装饰工程有限公司'],
+      recentSalary: [
+        { month: '2024-03', totalAmount: 2580000, workerCount: 256, status: 'normal' },
+        { month: '2024-02', totalAmount: 2450000, workerCount: 248, status: 'normal' },
+        { month: '2024-01', totalAmount: 2620000, workerCount: 260, status: 'normal' },
+      ],
+      totalWorkers: 256,
+    },
     inspector: '张督查',
     inspectorUnit: '市住建局',
     inspectTime: '2024-03-28 10:30',
@@ -21,21 +33,42 @@ export const mockReports: InspectionReport[] = [
         tags: ['未按月足额发放'],
         createTime: '2024-03-28 10:45',
         inspector: '张督查',
+        tracking: {
+          responsibleUnit: 'XX 建设集团有限公司',
+          deadline: '2024-04-15',
+          status: 'processing',
+          reviewNote: '正在协调补发，预计4月10日前到账。',
+          updateTime: '2024-03-29 14:20',
+        },
       },
     ],
-    projectSign: '',
-    inspectorSign: '',
+    sampledWorkerNames: ['张建国(钢筋班组)', '李志强(钢筋班组)', '刘德明(木工班组)', '陈文华(木工班组)'],
+    projectSign: '张总',
+    inspectorSign: '张督查',
   },
   {
     id: 'r002',
     projectId: 'p002',
     projectName: '滨江花园住宅项目',
+    projectInfo: {
+      bankName: '中国工商银行 XX 支行',
+      bankAccount: '6222 **** **** 6666',
+      generalContractor: 'XX 建工集团股份有限公司',
+      subcontractors: ['XX 建筑劳务有限公司'],
+      recentSalary: [
+        { month: '2024-03', totalAmount: 1890000, workerCount: 189, status: 'warning' },
+        { month: '2024-02', totalAmount: 1820000, workerCount: 185, status: 'normal' },
+        { month: '2024-01', totalAmount: 1950000, workerCount: 192, status: 'normal' },
+      ],
+      totalWorkers: 189,
+    },
     inspector: '李监理',
     inspectorUnit: 'XX监理公司',
     inspectTime: '2024-03-25 14:20',
     status: 'draft',
     summary: '抽查土建班组、水电班组共6名工人，未发现明显问题。',
     issues: [],
+    sampledWorkerNames: ['周志远(水电班组)', '吴明辉(水电班组)'],
     projectSign: '',
     inspectorSign: '',
   },
@@ -43,6 +76,18 @@ export const mockReports: InspectionReport[] = [
     id: 'r003',
     projectId: 'p003',
     projectName: '科技园区标准厂房项目',
+    projectInfo: {
+      bankName: '中国农业银行 XX 支行',
+      bankAccount: '6228 **** **** 9999',
+      generalContractor: 'XX 建设工程有限公司',
+      subcontractors: ['XX 劳务服务有限公司', 'XX 钢结构工程有限公司'],
+      recentSalary: [
+        { month: '2024-03', totalAmount: 0, workerCount: 0, status: 'error' },
+        { month: '2024-02', totalAmount: 1420000, workerCount: 145, status: 'normal' },
+        { month: '2024-01', totalAmount: 1380000, workerCount: 140, status: 'normal' },
+      ],
+      totalWorkers: 145,
+    },
     inspector: '王主任',
     inspectorUnit: '区人社局',
     inspectTime: '2024-03-20 09:15',
@@ -57,6 +102,13 @@ export const mockReports: InspectionReport[] = [
         tags: ['专户资料缺失'],
         createTime: '2024-03-20 09:30',
         inspector: '王主任',
+        tracking: {
+          responsibleUnit: 'XX 建设工程有限公司',
+          deadline: '2024-04-05',
+          status: 'pending',
+          reviewNote: '',
+          updateTime: '2024-03-20 09:30',
+        },
       },
       {
         id: 'i003',
@@ -68,10 +120,18 @@ export const mockReports: InspectionReport[] = [
         tags: ['人员信息不一致'],
         createTime: '2024-03-20 10:00',
         inspector: '王主任',
+        tracking: {
+          responsibleUnit: 'XX 劳务服务有限公司',
+          deadline: '2024-04-10',
+          status: 'completed',
+          reviewNote: '已核对身份信息，更新花名册。',
+          updateTime: '2024-03-22 16:30',
+        },
       },
     ],
-    projectSign: '',
-    inspectorSign: '',
+    sampledWorkerNames: ['赵永福(混凝土班组)'],
+    projectSign: '李经理',
+    inspectorSign: '王主任',
   },
 ];
 
@@ -81,4 +141,10 @@ export const getReportById = (id: string): InspectionReport | undefined => {
 
 export const getReportsByProject = (projectId: string): InspectionReport[] => {
   return mockReports.filter(r => r.projectId === projectId);
+};
+
+export const mergeReportsWithLocal = (localReports: InspectionReport[]): InspectionReport[] => {
+  const allIds = new Set(localReports.map(r => r.id));
+  const missingMock = mockReports.filter(r => !allIds.has(r.id));
+  return [...localReports, ...missingMock];
 };

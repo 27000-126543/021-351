@@ -6,6 +6,7 @@ import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import StatusBadge from '@/components/StatusBadge';
 import type { InspectionReport, IssueType, IssueRecord } from '@/types';
+import { ISSUE_TRACK_STATUS } from '@/types';
 import { useInspectionStore } from '@/store';
 import { formatMoney, getSalaryStatusText } from '@/utils';
 
@@ -23,7 +24,7 @@ const ReportDetailPage: React.FC = () => {
 
   useDidShow(() => {
     const { id } = router.params;
-    console.log('[ReportDetail] useDidShow, id:', id);
+    console.log('[ReportDetail] useDidShow, id:', id, 'currentReport:', currentReport?.id);
 
     if (currentReport) {
       setReport(currentReport);
@@ -33,16 +34,19 @@ const ReportDetailPage: React.FC = () => {
 
     if (id) {
       setCurrentReportById(id);
-      const store = useInspectionStore.getState();
-      if (store.currentReport) {
-        setReport(store.currentReport);
-      } else {
-        setReport(null);
-      }
+      setTimeout(() => {
+        const store = useInspectionStore.getState();
+        if (store.currentReport) {
+          setReport(store.currentReport);
+        } else {
+          setReport(null);
+        }
+        setLoading(false);
+      }, 100);
     } else {
       setReport(null);
+      setLoading(false);
     }
-    setLoading(false);
   });
 
   const getIssueTypeText = (type: IssueType): string => {
@@ -55,10 +59,30 @@ const ReportDetailPage: React.FC = () => {
     return map[type];
   };
 
+  const getTrackStatusBadge = (status: string) => {
+    const config = ISSUE_TRACK_STATUS.find(s => s.value === status);
+    if (!config) return null;
+    return <StatusBadge text={config.label} status={config.color as any} />;
+  };
+
   const handleSign = (role: 'project' | 'inspector') => {
     if (!report) return;
     Taro.navigateTo({
       url: `/pages/signature/index?role=${role}&reportId=${report.id}`,
+    });
+  };
+
+  const handleTrackIssue = (issue: IssueRecord) => {
+    if (!report) return;
+    Taro.navigateTo({
+      url: `/pages/issue-tracking/index?issueId=${issue.id}&reportId=${report.id}`,
+    });
+  };
+
+  const handlePreview = () => {
+    if (!report) return;
+    Taro.navigateTo({
+      url: `/pages/report-preview/index?id=${report.id}`,
     });
   };
 
@@ -123,7 +147,7 @@ const ReportDetailPage: React.FC = () => {
     
     let text = `本次在${r.projectName}现场核验，`;
     if (r.sampledWorkerNames && r.sampledWorkerNames.length > 0) {
-      text += `抽查${r.sampledWorkerNames.length}名工人，`;
+      text += `抽查${r.sampledWorkerNames.length}名工人（${r.sampledWorkerNames.join('、')}），`;
     }
     
     if (issueCount === 0) {
@@ -303,22 +327,48 @@ const ReportDetailPage: React.FC = () => {
                       ))}
                     </View>
                   )}
-                  {isDraft && (
-                    <View className={styles.issueActions}>
-                      <View
-                        className={styles.issueActionBtn}
-                        onClick={() => handleEditIssue(issue)}
-                      >
-                        编辑
+                  {issue.tracking && (
+                    <View className={styles.trackingInfo}>
+                      <View style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <Text style={{ fontSize: 26, fontWeight: 500, color: '#1d2129' }}>整改跟踪</Text>
+                        {getTrackStatusBadge(issue.tracking.status)}
                       </View>
-                      <View
-                        className={classnames(styles.issueActionBtn, styles.issueActionDelete)}
-                        onClick={() => handleDeleteIssue(issue.id)}
-                      >
-                        删除
-                      </View>
+                      <Text style={{ fontSize: 24, color: '#4e5969', lineHeight: 1.6 }}>
+                        责任单位：{issue.tracking.responsibleUnit}{'\n'}
+                        整改期限：{issue.tracking.deadline}{'\n'}
+                        {issue.tracking.reviewNote ? `复查说明：${issue.tracking.reviewNote}` : ''}
+                      </Text>
                     </View>
                   )}
+                  {!issue.tracking && isDraft && (
+                    <View className={styles.trackingInfo} style={{ textAlign: 'center' }}>
+                      <Text style={{ fontSize: 24, color: '#86909c' }}>尚未设置整改跟踪</Text>
+                    </View>
+                  )}
+                  <View className={styles.issueActions}>
+                    <View
+                      className={styles.issueActionBtn}
+                      onClick={() => handleTrackIssue(issue)}
+                    >
+                      整改跟踪
+                    </View>
+                    {isDraft && (
+                      <>
+                        <View
+                          className={styles.issueActionBtn}
+                          onClick={() => handleEditIssue(issue)}
+                        >
+                          编辑
+                        </View>
+                        <View
+                          className={classnames(styles.issueActionBtn, styles.issueActionDelete)}
+                          onClick={() => handleDeleteIssue(issue.id)}
+                        >
+                          删除
+                        </View>
+                      </>
+                    )}
+                  </View>
                 </View>
               ))}
             </View>
@@ -374,6 +424,9 @@ const ReportDetailPage: React.FC = () => {
       <View className={styles.bottomBar}>
         <View className={styles.secondaryBtn} onClick={handleShare}>
           分享
+        </View>
+        <View className={styles.secondaryBtn} onClick={handlePreview}>
+          预览纪要
         </View>
         <View
           className={classnames(styles.primaryBtn, !isDraft && styles.primaryBtnDisabled)}

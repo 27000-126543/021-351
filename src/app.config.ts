@@ -8,6 +8,8 @@ export default defineAppConfig({
     'pages/issue-record/index',
     'pages/report-detail/index',
     'pages/signature/index',
+    'pages/issue-tracking/index',
+    'pages/report-preview/index',
   ],
   window: {
     backgroundTextStyle: 'light',
