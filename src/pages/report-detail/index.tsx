@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
+import classnames from 'classnames';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import StatusBadge from '@/components/StatusBadge';
-import { getReportById } from '@/data/reports';
-import { mockWorkers } from '@/data/workers';
-import type { InspectionReport, IssueType } from '@/types';
+import type { InspectionReport, IssueType, IssueRecord } from '@/types';
 import { useInspectionStore } from '@/store';
+import { formatMoney, getSalaryStatusText } from '@/utils';
 
 const ReportDetailPage: React.FC = () => {
   const router = useRouter();
-  const { currentReport, setCurrentReport, sampledWorkerIds } = useInspectionStore();
+  const { 
+    currentReport, 
+    setCurrentReportById, 
+    deleteIssue, 
+    completeReport 
+  } = useInspectionStore();
   
   const [report, setReport] = useState<InspectionReport | null>(null);
   const [loading, setLoading] = useState(true);
 
   useDidShow(() => {
     const { id } = router.params;
-    loadReport(id);
-  });
-
-  const loadReport = (id?: string) => {
-    console.log('[ReportDetail] 加载纪要, id:', id, 'store中currentReport:', currentReport?.id);
+    console.log('[ReportDetail] useDidShow, id:', id);
 
     if (currentReport) {
       setReport(currentReport);
@@ -31,10 +32,10 @@ const ReportDetailPage: React.FC = () => {
     }
 
     if (id) {
-      const found = getReportById(id);
-      if (found) {
-        setCurrentReport(found);
-        setReport(found);
+      setCurrentReportById(id);
+      const store = useInspectionStore.getState();
+      if (store.currentReport) {
+        setReport(store.currentReport);
       } else {
         setReport(null);
       }
@@ -42,10 +43,10 @@ const ReportDetailPage: React.FC = () => {
       setReport(null);
     }
     setLoading(false);
-  };
+  });
 
   const getIssueTypeText = (type: IssueType): string => {
-    const map = {
+    const map: Record<IssueType, string> = {
       salary: '工资问题',
       info: '信息问题',
       material: '资料问题',
@@ -61,6 +62,30 @@ const ReportDetailPage: React.FC = () => {
     });
   };
 
+  const handleEditIssue = (issue: IssueRecord) => {
+    if (!report || report.status === 'completed') return;
+    Taro.navigateTo({
+      url: `/pages/issue-record/index?issueId=${issue.id}&reportId=${report.id}`,
+    });
+  };
+
+  const handleDeleteIssue = (issueId: string) => {
+    if (!report || report.status === 'completed') return;
+    
+    Taro.showModal({
+      title: '确认删除',
+      content: '确定要删除这条问题记录吗？删除后无法恢复。',
+      confirmColor: '#f53f3f',
+      success: (res) => {
+        if (res.confirm) {
+          deleteIssue(issueId);
+          const store = useInspectionStore.getState();
+          setReport(store.currentReport);
+        }
+      },
+    });
+  };
+
   const handleShare = () => {
     Taro.showToast({
       title: '分享功能开发中',
@@ -73,15 +98,12 @@ const ReportDetailPage: React.FC = () => {
     
     Taro.showModal({
       title: '确认完成',
-      content: '确认完成本次核验纪要？完成后将无法修改。',
+      content: '确认完成本次核验纪要？完成后将无法修改问题和签字。',
       success: (res) => {
         if (res.confirm) {
-          const updatedReport: InspectionReport = {
-            ...report,
-            status: 'completed',
-          };
-          setCurrentReport(updatedReport);
-          setReport(updatedReport);
+          completeReport();
+          const store = useInspectionStore.getState();
+          setReport(store.currentReport);
           
           Taro.showToast({
             title: '核验已完成',
@@ -92,12 +114,39 @@ const ReportDetailPage: React.FC = () => {
     });
   };
 
-  const getSampledWorkerNames = () => {
-    if (sampledWorkerIds.length === 0) return '暂无抽查记录';
-    const workers = mockWorkers.filter(w => sampledWorkerIds.includes(w.id));
-    if (workers.length === 0) return '暂无抽查记录';
-    const names = workers.map(w => `${w.name}(${w.team})`).join('、');
-    return `共抽查 ${workers.length} 人：${names}`;
+  const generateSummary = (r: InspectionReport): string => {
+    if (r.summary) return r.summary;
+    const issueCount = r.issues.length;
+    const salaryIssues = r.issues.filter(i => i.type === 'salary').length;
+    const infoIssues = r.issues.filter(i => i.type === 'info').length;
+    const materialIssues = r.issues.filter(i => i.type === 'material').length;
+    
+    let text = `本次在${r.projectName}现场核验，`;
+    if (r.sampledWorkerNames && r.sampledWorkerNames.length > 0) {
+      text += `抽查${r.sampledWorkerNames.length}名工人，`;
+    }
+    
+    if (issueCount === 0) {
+      text += '工资发放及人员信息未发现明显异常。';
+    } else {
+      text += `共发现${issueCount}个问题`;
+      const parts: string[] = [];
+      if (salaryIssues > 0) parts.push(`工资类${salaryIssues}项`);
+      if (infoIssues > 0) parts.push(`信息类${infoIssues}项`);
+      if (materialIssues > 0) parts.push(`资料类${materialIssues}项`);
+      if (parts.length > 0) text += `（${parts.join('、')}）`;
+      text += '，已现场记录并拍照留证。';
+    }
+    return text;
+  };
+
+  const getSalaryStatus = (status: 'normal' | 'warning' | 'error') => {
+    const statusMap = {
+      normal: 'success' as const,
+      warning: 'warning' as const,
+      error: 'error' as const,
+    };
+    return <StatusBadge text={getSalaryStatusText(status)} status={statusMap[status]} />;
   };
 
   if (loading) {
@@ -116,6 +165,9 @@ const ReportDetailPage: React.FC = () => {
     );
   }
 
+  const pi = report.projectInfo;
+  const isDraft = report.status === 'draft';
+
   return (
     <View className={styles.page}>
       <ScrollView scrollY className={styles.content}>
@@ -123,6 +175,52 @@ const ReportDetailPage: React.FC = () => {
           <Text className={styles.reportTitle}>{report.projectName}</Text>
           <Text className={styles.reportNo}>核验纪要 · {report.inspectTime}</Text>
         </View>
+
+        {pi && (
+          <View className={styles.infoCard}>
+            <Text className={styles.cardTitle}>
+              <Text className={styles.cardTitleIcon}>🏦</Text>
+              项目资料
+            </Text>
+            <View className={styles.infoRow}>
+              <Text className={styles.infoLabel}>开户银行</Text>
+              <Text className={styles.infoValue}>{pi.bankName}</Text>
+            </View>
+            <View className={styles.infoRow}>
+              <Text className={styles.infoLabel}>银行账号</Text>
+              <Text className={styles.infoValue}>{pi.bankAccount}</Text>
+            </View>
+            <View className={styles.infoRow}>
+              <Text className={styles.infoLabel}>总包单位</Text>
+              <Text className={styles.infoValue}>{pi.generalContractor}</Text>
+            </View>
+            <View className={styles.infoRow}>
+              <Text className={styles.infoLabel}>分包单位</Text>
+              <Text className={styles.infoValue}>{pi.subcontractors.join('、')}</Text>
+            </View>
+            <View className={styles.infoRow}>
+              <Text className={styles.infoLabel}>工人总数</Text>
+              <Text className={styles.infoValue}>{pi.totalWorkers} 人</Text>
+            </View>
+            {pi.recentSalary.length > 0 && (
+              <View style={{ marginTop: 16 }}>
+                <Text style={{ fontSize: 28, color: '#4e5969', marginBottom: 12, display: 'block' }}>近三月工资发放</Text>
+                {pi.recentSalary.map((item, idx) => (
+                  <View key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12rpx 0', borderBottom: '1rpx solid #f2f3f5' }}>
+                    <View style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Text style={{ fontSize: 28, color: '#1d2129', fontWeight: 500 }}>{item.month}</Text>
+                      {getSalaryStatus(item.status)}
+                    </View>
+                    <View style={{ textAlign: 'right' }}>
+                      <Text style={{ fontSize: 32, fontWeight: 600, color: '#165dff', display: 'block' }}>{formatMoney(item.totalAmount)}</Text>
+                      <Text style={{ fontSize: 24, color: '#86909c' }}>发放 {item.workerCount} 人</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
 
         <View className={styles.infoCard}>
           <Text className={styles.cardTitle}>
@@ -153,17 +251,19 @@ const ReportDetailPage: React.FC = () => {
           </View>
         </View>
 
-        <View className={styles.infoCard}>
-          <Text className={styles.cardTitle}>
-            <Text className={styles.cardTitleIcon}>👥</Text>
-            抽查人员
-          </Text>
-          <View className={styles.infoRow}>
-            <Text className={styles.infoValue} style={{ textAlign: 'left', lineHeight: 1.8 }}>
-              {getSampledWorkerNames()}
+        {report.sampledWorkerNames && report.sampledWorkerNames.length > 0 && (
+          <View className={styles.infoCard}>
+            <Text className={styles.cardTitle}>
+              <Text className={styles.cardTitleIcon}>👥</Text>
+              抽查人员 ({report.sampledWorkerNames.length}人)
             </Text>
+            <View className={styles.infoRow}>
+              <Text className={styles.infoValue} style={{ textAlign: 'left', lineHeight: 1.8 }}>
+                {report.sampledWorkerNames.join('、')}
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
 
         <View className={styles.infoCard}>
           <Text className={styles.cardTitle}>
@@ -203,6 +303,22 @@ const ReportDetailPage: React.FC = () => {
                       ))}
                     </View>
                   )}
+                  {isDraft && (
+                    <View className={styles.issueActions}>
+                      <View
+                        className={styles.issueActionBtn}
+                        onClick={() => handleEditIssue(issue)}
+                      >
+                        编辑
+                      </View>
+                      <View
+                        className={classnames(styles.issueActionBtn, styles.issueActionDelete)}
+                        onClick={() => handleDeleteIssue(issue.id)}
+                      >
+                        删除
+                      </View>
+                    </View>
+                  )}
                 </View>
               ))}
             </View>
@@ -216,9 +332,7 @@ const ReportDetailPage: React.FC = () => {
             <Text className={styles.cardTitleIcon}>📝</Text>
             检查小结
           </Text>
-          <Text className={styles.summaryText}>
-            {report.summary || `本次在${report.projectName}现场核验，抽查工人信息，${report.issues.length > 0 ? `发现${report.issues.length}个问题，已现场记录并拍照留证。` : '工资发放及人员信息未发现明显异常。'}`}
-          </Text>
+          <Text className={styles.summaryText}>{generateSummary(report)}</Text>
         </View>
 
         <View className={styles.signatureSection}>
@@ -262,8 +376,8 @@ const ReportDetailPage: React.FC = () => {
           分享
         </View>
         <View
-          className={styles.primaryBtn}
-          onClick={handleComplete}
+          className={classnames(styles.primaryBtn, !isDraft && styles.primaryBtnDisabled)}
+          onClick={isDraft ? handleComplete : undefined}
         >
           {report.status === 'completed' ? '已完成核验' : '完成核验'}
         </View>

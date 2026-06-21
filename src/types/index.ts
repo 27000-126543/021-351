@@ -46,10 +46,20 @@ export interface IssueRecord {
 
 export type IssueType = 'salary' | 'info' | 'material' | 'other';
 
+export interface ProjectInfo {
+  bankName: string;
+  bankAccount: string;
+  generalContractor: string;
+  subcontractors: string[];
+  recentSalary: RecentSalary[];
+  totalWorkers: number;
+}
+
 export interface InspectionReport {
   id: string;
   projectId: string;
   projectName: string;
+  projectInfo?: ProjectInfo;
   inspector: string;
   inspectorUnit: string;
   inspectTime: string;
@@ -58,6 +68,7 @@ export interface InspectionReport {
   projectSign?: string;
   inspectorSign?: string;
   status: 'draft' | 'completed';
+  sampledWorkerNames?: string[];
 }
 
 export interface UserInfo {

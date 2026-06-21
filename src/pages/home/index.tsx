@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import StatusBadge from '@/components/StatusBadge';
-import { mockReports } from '@/data/reports';
+import { useInspectionStore } from '@/store';
 import type { InspectionReport } from '@/types';
 
 const HomePage: React.FC = () => {
-  const [recentReports] = useState<InspectionReport[]>(mockReports.slice(0, 3));
+  const { allReports, initReports, setCurrentReportById } = useInspectionStore();
+
+  useDidShow(() => {
+    initReports();
+  });
+
+  const recentReports = allReports.slice(0, 3);
 
   const handleScan = () => {
     Taro.scanCode({
@@ -50,6 +56,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleReportClick = (reportId: string) => {
+    setCurrentReportById(reportId);
     Taro.navigateTo({
       url: `/pages/report-detail/index?id=${reportId}`,
     });

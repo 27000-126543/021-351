@@ -18,8 +18,10 @@ const issueTypes: { type: IssueType; icon: string; label: string }[] = [
 
 const IssueRecordPage: React.FC = () => {
   const router = useRouter();
-  const { addIssue, currentReport } = useInspectionStore();
+  const { addIssue, updateIssue, currentReport, setCurrentReportById } = useInspectionStore();
 
+  const [isEdit, setIsEdit] = useState(false);
+  const [editIssueId, setEditIssueId] = useState('');
   const [issueType, setIssueType] = useState<IssueType>('salary');
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -29,8 +31,32 @@ const IssueRecordPage: React.FC = () => {
   const [workerTeam, setWorkerTeam] = useState('');
 
   useEffect(() => {
-    const { workerId: wid, workerName: name } = router.params;
-    console.log('[IssueRecord] 参数:', { workerId: wid, name });
+    const { 
+      workerId: wid, 
+      workerName: name, 
+      issueId, 
+      reportId 
+    } = router.params;
+    
+    console.log('[IssueRecord] 参数:', { workerId: wid, name, issueId, reportId });
+
+    if (reportId) {
+      setCurrentReportById(reportId);
+    }
+
+    if (issueId && currentReport) {
+      const existingIssue = currentReport.issues.find(i => i.id === issueId);
+      if (existingIssue) {
+        setIsEdit(true);
+        setEditIssueId(issueId);
+        setIssueType(existingIssue.type);
+        setDescription(existingIssue.description);
+        setSelectedTags(existingIssue.tags);
+        setPhotos(existingIssue.photos);
+        if (existingIssue.workerName) setWorkerName(existingIssue.workerName);
+        return;
+      }
+    }
 
     if (wid) {
       setWorkerId(wid);
@@ -47,7 +73,6 @@ const IssueRecordPage: React.FC = () => {
   }, [router.params]);
 
   const handleTypeChange = (type: IssueType) => {
-    console.log('[IssueRecord] 切换问题类型:', type);
     setIssueType(type);
   };
 
@@ -66,7 +91,6 @@ const IssueRecordPage: React.FC = () => {
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success: (res) => {
-        console.log('[IssueRecord] 选择图片:', res.tempFilePaths);
         setPhotos(prev => [...prev, ...res.tempFilePaths]);
       },
       fail: (err) => {
@@ -88,33 +112,41 @@ const IssueRecordPage: React.FC = () => {
       return;
     }
 
-    const now = new Date();
-    const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    if (isEdit) {
+      updateIssue(editIssueId, {
+        type: issueType,
+        description: description.trim(),
+        photos: [...photos],
+        tags: [...selectedTags],
+      });
+      console.log('[IssueRecord] 更新问题:', editIssueId);
+    } else {
+      const now = new Date();
+      const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-    const newIssue: IssueRecord = {
-      id: generateId(),
-      workerId: workerId || undefined,
-      workerName: workerName || undefined,
-      type: issueType,
-      description: description.trim(),
-      photos: [...photos],
-      tags: [...selectedTags],
-      createTime: timeStr,
-      inspector: '张督查',
-    };
+      const newIssue: IssueRecord = {
+        id: generateId(),
+        workerId: workerId || undefined,
+        workerName: workerName || undefined,
+        type: issueType,
+        description: description.trim(),
+        photos: [...photos],
+        tags: [...selectedTags],
+        createTime: timeStr,
+        inspector: '张督查',
+      };
 
-    console.log('[IssueRecord] 提交问题记录:', newIssue);
-    console.log('[IssueRecord] 当前纪要:', currentReport?.id, currentReport?.projectName);
-
-    addIssue(newIssue);
+      addIssue(newIssue);
+      console.log('[IssueRecord] 新增问题:', newIssue.id);
+    }
 
     Taro.showToast({
-      title: '记录已保存',
+      title: isEdit ? '已更新' : '记录已保存',
       icon: 'success',
       success: () => {
         setTimeout(() => {
           Taro.navigateBack();
-        }, 1500);
+        }, 1200);
       },
     });
   };
@@ -239,7 +271,7 @@ const IssueRecordPage: React.FC = () => {
           className={classnames(styles.submitBtn, !description.trim() && styles.disabled)}
           onClick={handleSubmit}
         >
-          保存记录
+          {isEdit ? '保存修改' : '保存记录'}
         </View>
       </View>
     </View>

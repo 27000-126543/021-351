@@ -10,7 +10,7 @@ import { useInspectionStore } from '@/store';
 
 const ProjectDetailPage: React.FC = () => {
   const router = useRouter();
-  const { createReport, setCurrentReport, currentReport, resetAll } = useInspectionStore();
+  const { createReport, setCurrentReportById, currentReport, allReports, resetCurrent } = useInspectionStore();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,46 +34,61 @@ const ProjectDetailPage: React.FC = () => {
     setLoading(false);
   }, [router.params]);
 
+  const findDraftForProject = (projectId: string) => {
+    return allReports.find(r => r.projectId === projectId && r.status === 'draft');
+  };
+
   const handleStartInspect = () => {
     if (!project) return;
     
-    if (!currentReport || currentReport.projectId !== project.id) {
-      console.log('[ProjectDetail] 抽查前自动创建纪要');
-      createReport(project.id, project.name);
+    const existingDraft = findDraftForProject(project.id);
+    if (existingDraft) {
+      setCurrentReportById(existingDraft.id);
+    } else if (!currentReport || currentReport.projectId !== project.id) {
+      createReportWithProjectInfo();
     }
     
     Taro.switchTab({ url: '/pages/inspect/index' });
   };
 
+  const createReportWithProjectInfo = () => {
+    if (!project) return null;
+
+    const projectInfo = {
+      bankName: project.bankName,
+      bankAccount: project.bankAccount,
+      generalContractor: project.generalContractor,
+      subcontractors: project.subcontractors,
+      recentSalary: project.recentSalary,
+      totalWorkers: project.totalWorkers,
+    };
+
+    return createReport(project.id, project.name, projectInfo);
+  };
+
   const handleGenerateReport = () => {
     if (!project) return;
     
-    console.log('[ProjectDetail] 生成核验纪要:', project.id, project.name);
+    const existingDraft = findDraftForProject(project.id);
     
-    if (currentReport && currentReport.projectId === project.id) {
-      Taro.showModal({
-        title: '已有当前纪要',
-        content: '检测到该项目已有正在进行的核验纪要，是否继续使用？',
-        confirmText: '继续使用',
-        cancelText: '新建纪要',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({
-              url: `/pages/report-detail/index?id=${currentReport.id}`,
-            });
-          } else {
-            resetAll();
-            const newReport = createReport(project.id, project.name);
-            Taro.navigateTo({
-              url: `/pages/report-detail/index?id=${newReport.id}`,
-            });
-          }
-        },
+    if (existingDraft) {
+      setCurrentReportById(existingDraft.id);
+      Taro.navigateTo({
+        url: `/pages/report-detail/index?id=${existingDraft.id}`,
       });
       return;
     }
 
-    const newReport = createReport(project.id, project.name);
+    if (currentReport && currentReport.projectId === project.id) {
+      Taro.navigateTo({
+        url: `/pages/report-detail/index?id=${currentReport.id}`,
+      });
+      return;
+    }
+
+    const newReport = createReportWithProjectInfo();
+    if (!newReport) return;
+
     console.log('[ProjectDetail] 已创建新纪要:', newReport.id);
 
     Taro.showToast({
@@ -114,7 +129,7 @@ const ProjectDetailPage: React.FC = () => {
     );
   }
 
-  const hasActiveReport = currentReport && currentReport.projectId === project.id;
+  const hasDraft = !!findDraftForProject(project.id);
 
   return (
     <View className={styles.page}>
@@ -122,9 +137,9 @@ const ProjectDetailPage: React.FC = () => {
         <Text className={styles.projectName}>{project.name}</Text>
         <Text className={styles.projectCode}>项目编号：{project.code}</Text>
         <Text className={styles.projectAddress}>📍 {project.address}</Text>
-        {hasActiveReport && (
+        {hasDraft && (
           <Text style={{ marginTop: 16, fontSize: 24, color: 'rgba(255,255,255,0.9)' }}>
-            ✅ 已关联核验纪要
+            ✅ 存在未完成草稿纪要
           </Text>
         )}
       </View>
@@ -204,7 +219,7 @@ const ProjectDetailPage: React.FC = () => {
 
       <View className={styles.bottomBar}>
         <View className={styles.secondaryBtn} onClick={handleGenerateReport}>
-          {hasActiveReport ? '查看纪要' : '生成纪要'}
+          {hasDraft ? '继续草稿' : '生成纪要'}
         </View>
         <View className={styles.primaryBtn} onClick={handleStartInspect}>
           开始抽查

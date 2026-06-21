@@ -13,7 +13,7 @@ import { useInspectionStore } from '@/store';
 const teams = ['钢筋班组', '木工班组', '混凝土班组', '水电班组', '装饰班组'];
 
 const InspectPage: React.FC = () => {
-  const { setSampledWorkers: setStoreSampledWorkers, currentReport } = useInspectionStore();
+  const { currentReport, setCurrentReportById, initReports } = useInspectionStore();
 
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -59,11 +59,16 @@ const InspectPage: React.FC = () => {
     const picked = randomPick(filteredWorkers, Math.min(count, filteredWorkers.length));
     setSampledWorkers(picked);
     setHasSampled(true);
+
+    if (currentReport) {
+      const workerNames = picked.map(w => `${w.name}(${w.team})`);
+      useInspectionStore.getState().setCurrentReport({
+        ...currentReport,
+        sampledWorkerNames: workerNames,
+      });
+    }
     
-    const workerIds = picked.map(w => w.id);
-    setStoreSampledWorkers(workerIds);
-    
-    console.log('[Inspect] 随机抽查工人:', picked.length, '人, IDs:', workerIds);
+    console.log('[Inspect] 随机抽查工人:', picked.length, '人');
     console.log('[Inspect] 当前纪要:', currentReport?.id, currentReport?.projectName);
   };
 

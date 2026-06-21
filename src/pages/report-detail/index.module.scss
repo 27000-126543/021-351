@@ -131,6 +131,31 @@
   gap: $spacing-sm;
 }
 
+.issueActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.issueActionBtn {
+  padding: 8rpx 20rpx;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background-color: $color-primary-bg;
+  border-radius: $radius-button;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.issueActionDelete {
+  color: $color-error;
+  background-color: $color-error-bg;
+}
+
 .summaryCard {
   background-color: $color-bg-card;
   border-radius: $radius-md;
@@ -250,6 +275,11 @@
     opacity: 0.9;
     transform: scale(0.98);
   }
+}
+
+.primaryBtnDisabled {
+  background: $color-text-disabled;
+  color: $color-text-white;
 }
 
 .loading {
