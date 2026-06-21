@@ -34,12 +34,21 @@ export interface Worker {
 
 export type IssueTrackStatus = 'pending' | 'processing' | 'completed' | 'verified';
 
+export interface TrackLog {
+  time: string;
+  operator: string;
+  fromStatus?: string;
+  toStatus: string;
+  note: string;
+}
+
 export interface IssueTracking {
   responsibleUnit: string;
   deadline: string;
   status: IssueTrackStatus;
   reviewNote: string;
   updateTime: string;
+  logs: TrackLog[];
 }
 
 export interface IssueRecord {
@@ -84,7 +93,9 @@ export interface InspectionReport {
   issues: IssueRecord[];
   summary: string;
   projectSign?: string;
+  projectSignImage?: string;
   inspectorSign?: string;
+  inspectorSignImage?: string;
   status: 'draft' | 'completed';
   sampledWorkerNames: string[];
 }

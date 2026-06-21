@@ -198,34 +198,36 @@ export const useInspectionStore = create<InspectionStore>((set, get) => ({
     console.log('[Store] 删除问题:', issueId, '剩余:', updatedIssues.length);
   },
 
-  setProjectSign: (sign: string) => {
+  setProjectSign: (sign: string, signImage?: string) => {
     const { currentReport, allReports } = get();
     if (!currentReport) return;
 
     const updatedReport: InspectionReport = {
       ...currentReport,
       projectSign: sign,
+      projectSignImage: signImage,
     };
 
     const updatedReports = allReports.map(r => r.id === updatedReport.id ? updatedReport : r);
     set({ currentReport: updatedReport, allReports: updatedReports });
     saveReportsToStorage(updatedReports);
-    console.log('[Store] 保存项目部签字');
+    console.log('[Store] 保存项目部签字', signImage ? '（含图片）' : '');
   },
 
-  setInspectorSign: (sign: string) => {
+  setInspectorSign: (sign: string, signImage?: string) => {
     const { currentReport, allReports } = get();
     if (!currentReport) return;
 
     const updatedReport: InspectionReport = {
       ...currentReport,
       inspectorSign: sign,
+      inspectorSignImage: signImage,
     };
 
     const updatedReports = allReports.map(r => r.id === updatedReport.id ? updatedReport : r);
     set({ currentReport: updatedReport, allReports: updatedReports });
     saveReportsToStorage(updatedReports);
-    console.log('[Store] 保存检查人员签字');
+    console.log('[Store] 保存检查人员签字', signImage ? '（含图片）' : '');
   },
 
   completeReport: () => {

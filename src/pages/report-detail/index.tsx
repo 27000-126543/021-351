@@ -394,7 +394,13 @@ const ReportDetailPage: React.FC = () => {
             <View className={styles.signatureItem}>
               <Text className={styles.signatureLabel}>项目部签字</Text>
               <View className={styles.signatureBox}>
-                {report.projectSign ? (
+                {report.projectSignImage ? (
+                  <Image
+                    src={report.projectSignImage}
+                    className={styles.signatureImage}
+                    mode="aspectFit"
+                  />
+                ) : report.projectSign ? (
                   <Text className={styles.signatureSigned}>{report.projectSign}</Text>
                 ) : (
                   <Text className={styles.signatureText}>未签字</Text>
@@ -407,7 +413,13 @@ const ReportDetailPage: React.FC = () => {
             <View className={styles.signatureItem}>
               <Text className={styles.signatureLabel}>检查人员签字</Text>
               <View className={styles.signatureBox}>
-                {report.inspectorSign ? (
+                {report.inspectorSignImage ? (
+                  <Image
+                    src={report.inspectorSignImage}
+                    className={styles.signatureImage}
+                    mode="aspectFit"
+                  />
+                ) : report.inspectorSign ? (
                   <Text className={styles.signatureSigned}>{report.inspectorSign}</Text>
                 ) : (
                   <Text className={styles.signatureText}>未签字</Text>

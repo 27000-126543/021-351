@@ -39,112 +39,174 @@ export const mockReports: InspectionReport[] = [
           status: 'processing',
           reviewNote: '正在协调补发，预计4月10日前到账。',
           updateTime: '2024-03-29 14:20',
+          logs: [
+            {
+              time: '2024-03-29T14:20:00.000Z',
+              operator: '张督查',
+              fromStatus: 'pending',
+              toStatus: 'processing',
+              note: '状态由「待整改」改为「整改中」；更新复查说明',
+            },
+            {
+              time: '2024-03-28T11:00:00.000Z',
+              operator: '张督查',
+              toStatus: 'pending',
+              note: '创建整改跟踪，状态：待整改',
+            },
+          ],
         },
       },
     ],
     sampledWorkerNames: ['张建国(钢筋班组)', '李志强(钢筋班组)', '刘德明(木工班组)', '陈文华(木工班组)'],
-    projectSign: '张总',
+    projectSign: '王建国',
     inspectorSign: '张督查',
   },
   {
     id: 'r002',
     projectId: 'p002',
-    projectName: '滨江花园住宅项目',
+    projectName: '阳光花园小区二期',
     projectInfo: {
       bankName: '中国工商银行 XX 支行',
       bankAccount: '6222 **** **** 6666',
-      generalContractor: 'XX 建工集团股份有限公司',
+      generalContractor: 'XX 建工集团',
       subcontractors: ['XX 建筑劳务有限公司'],
       recentSalary: [
-        { month: '2024-03', totalAmount: 1890000, workerCount: 189, status: 'warning' },
-        { month: '2024-02', totalAmount: 1820000, workerCount: 185, status: 'normal' },
-        { month: '2024-01', totalAmount: 1950000, workerCount: 192, status: 'normal' },
+        { month: '2024-03', totalAmount: 1850000, workerCount: 185, status: 'warning' },
+        { month: '2024-02', totalAmount: 1920000, workerCount: 192, status: 'normal' },
+        { month: '2024-01', totalAmount: 2050000, workerCount: 205, status: 'normal' },
       ],
-      totalWorkers: 189,
+      totalWorkers: 185,
     },
-    inspector: '李监理',
-    inspectorUnit: 'XX监理公司',
+    inspector: '李主任',
+    inspectorUnit: '区住建局',
     inspectTime: '2024-03-25 14:20',
-    status: 'draft',
-    summary: '抽查土建班组、水电班组共6名工人，未发现明显问题。',
-    issues: [],
-    sampledWorkerNames: ['周志远(水电班组)', '吴明辉(水电班组)'],
-    projectSign: '',
-    inspectorSign: '',
-  },
-  {
-    id: 'r003',
-    projectId: 'p003',
-    projectName: '科技园区标准厂房项目',
-    projectInfo: {
-      bankName: '中国农业银行 XX 支行',
-      bankAccount: '6228 **** **** 9999',
-      generalContractor: 'XX 建设工程有限公司',
-      subcontractors: ['XX 劳务服务有限公司', 'XX 钢结构工程有限公司'],
-      recentSalary: [
-        { month: '2024-03', totalAmount: 0, workerCount: 0, status: 'error' },
-        { month: '2024-02', totalAmount: 1420000, workerCount: 145, status: 'normal' },
-        { month: '2024-01', totalAmount: 1380000, workerCount: 140, status: 'normal' },
-      ],
-      totalWorkers: 145,
-    },
-    inspector: '王主任',
-    inspectorUnit: '区人社局',
-    inspectTime: '2024-03-20 09:15',
     status: 'completed',
-    summary: '发现该项目3月份工资尚未发放，存在专户资料缺失问题。',
+    summary: '抽查发现2个问题，其中专户资料缺失问题已整改完成，人员信息不一致问题待复核。',
     issues: [
       {
         id: 'i002',
         type: 'material',
-        description: '项目工资专户银行对账单缺失，无法核实工资发放情况。',
+        description: '现场检查发现2024年1月份工资发放明细表缺失，无法核对发放情况。',
         photos: [],
         tags: ['专户资料缺失'],
-        createTime: '2024-03-20 09:30',
-        inspector: '王主任',
+        createTime: '2024-03-25 14:45',
+        inspector: '李主任',
         tracking: {
-          responsibleUnit: 'XX 建设工程有限公司',
-          deadline: '2024-04-05',
-          status: 'pending',
-          reviewNote: '',
-          updateTime: '2024-03-20 09:30',
+          responsibleUnit: 'XX 建工集团',
+          deadline: '2024-03-28',
+          status: 'verified',
+          reviewNote: '已补交1月份工资发放明细表及银行代发凭证，资料齐全。',
+          updateTime: '2024-03-27 09:30',
+          logs: [
+            {
+              time: '2024-03-27T09:30:00.000Z',
+              operator: '李主任',
+              fromStatus: 'completed',
+              toStatus: 'verified',
+              note: '状态由「已整改」改为「已复核」',
+            },
+            {
+              time: '2024-03-26T16:00:00.000Z',
+              operator: '王经理',
+              fromStatus: 'processing',
+              toStatus: 'completed',
+              note: '状态由「整改中」改为「已整改」；资料已补交',
+            },
+            {
+              time: '2024-03-25T15:00:00.000Z',
+              operator: '李主任',
+              toStatus: 'processing',
+              note: '创建整改跟踪，状态：整改中',
+            },
+          ],
         },
       },
       {
         id: 'i003',
-        workerId: 'w006',
-        workerName: '赵永福',
+        workerId: 'w005',
+        workerName: '赵天明',
         type: 'info',
-        description: '工人身份证信息与花名册登记信息不一致。',
+        description: '工人赵天明的身份证信息与工资专户登记信息不一致，需核实。',
         photos: [],
         tags: ['人员信息不一致'],
-        createTime: '2024-03-20 10:00',
-        inspector: '王主任',
+        createTime: '2024-03-25 15:10',
+        inspector: '李主任',
         tracking: {
-          responsibleUnit: 'XX 劳务服务有限公司',
-          deadline: '2024-04-10',
+          responsibleUnit: 'XX 建筑劳务有限公司',
+          deadline: '2024-04-01',
           status: 'completed',
-          reviewNote: '已核对身份信息，更新花名册。',
-          updateTime: '2024-03-22 16:30',
+          reviewNote: '已核实并更新工人身份信息，系统已同步。',
+          updateTime: '2024-03-29 11:00',
+          logs: [
+            {
+              time: '2024-03-29T11:00:00.000Z',
+              operator: '李主任',
+              fromStatus: 'processing',
+              toStatus: 'completed',
+              note: '状态由「整改中」改为「已整改」；身份信息已更新',
+            },
+            {
+              time: '2024-03-25T15:30:00.000Z',
+              operator: '李主任',
+              toStatus: 'pending',
+              note: '创建整改跟踪，状态：待整改',
+            },
+          ],
         },
       },
     ],
-    sampledWorkerNames: ['赵永福(混凝土班组)'],
-    projectSign: '李经理',
-    inspectorSign: '王主任',
+    sampledWorkerNames: ['赵天明(瓦工班组)', '钱宝山(瓦工班组)', '孙大力(水电班组)', '周建平(水电班组)'],
+    projectSign: '刘经理',
+    inspectorSign: '李主任',
+  },
+  {
+    id: 'r003',
+    projectId: 'p003',
+    projectName: '科技创新产业园',
+    projectInfo: {
+      bankName: '中国银行 XX 支行',
+      bankAccount: '6217 **** **** 9999',
+      generalContractor: 'XX 建设工程有限公司',
+      subcontractors: ['XX 劳务服务有限公司', 'XX 机电安装有限公司'],
+      recentSalary: [
+        { month: '2024-03', totalAmount: 3200000, workerCount: 320, status: 'normal' },
+        { month: '2024-02', totalAmount: 3100000, workerCount: 310, status: 'normal' },
+        { month: '2024-01', totalAmount: 3000000, workerCount: 300, status: 'normal' },
+      ],
+      totalWorkers: 320,
+    },
+    inspector: '王科长',
+    inspectorUnit: '市人社局',
+    inspectTime: '2024-03-20 09:00',
+    status: 'draft',
+    summary: '',
+    issues: [
+      {
+        id: 'i004',
+        type: 'other',
+        description: '现场考勤设备损坏，部分工人考勤记录不全。',
+        photos: [],
+        tags: ['考勤记录不全', '其他问题'],
+        createTime: '2024-03-20 09:30',
+        inspector: '王科长',
+      },
+    ],
+    sampledWorkerNames: ['吴大勇(架子工)', '郑小波(架子工)', '冯志强(钢筋班组)'],
+    projectSign: '',
+    inspectorSign: '',
   },
 ];
 
-export const getReportById = (id: string): InspectionReport | undefined => {
-  return mockReports.find(r => r.id === id);
-};
-
-export const getReportsByProject = (projectId: string): InspectionReport[] => {
-  return mockReports.filter(r => r.projectId === projectId);
-};
-
 export const mergeReportsWithLocal = (localReports: InspectionReport[]): InspectionReport[] => {
-  const allIds = new Set(localReports.map(r => r.id));
-  const missingMock = mockReports.filter(r => !allIds.has(r.id));
-  return [...localReports, ...missingMock];
+  const map = new Map<string, InspectionReport>();
+  
+  mockReports.forEach(r => {
+    map.set(r.id, r);
+  });
+  
+  localReports.forEach(r => {
+    map.set(r.id, r);
+  });
+  
+  return Array.from(map.values());
 };

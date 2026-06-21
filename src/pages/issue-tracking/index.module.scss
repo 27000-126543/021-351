@@ -6,16 +6,21 @@
   padding-bottom: 160rpx;
 }
 
-.content {
-  padding: $spacing-md $page-padding;
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
 }
 
 .issueCard {
+  margin: $spacing-md $page-padding;
+  padding: $spacing-lg;
   background-color: $color-bg-card;
   border-radius: $radius-md;
   box-shadow: $shadow-card;
-  padding: $spacing-lg;
-  margin-bottom: $spacing-md;
   border-left: 6rpx solid $color-error;
 }
 
@@ -26,21 +31,32 @@
   margin-bottom: $spacing-sm;
 }
 
-.issueType {
+.issueTitle {
   font-size: $font-size-md;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
 }
 
-.issueTime {
+.statusBadge {
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
   font-size: $font-size-sm;
-  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
 }
 
-.issueWorker {
-  font-size: $font-size-md;
-  color: $color-text-secondary;
-  margin-bottom: $spacing-sm;
+.status-warning {
+  background-color: $color-warning-bg;
+  color: $color-warning;
+}
+
+.status-info {
+  background-color: $color-primary-bg;
+  color: $color-primary;
+}
+
+.status-success {
+  background-color: $color-success-bg;
+  color: $color-success;
 }
 
 .issueDesc {
@@ -50,34 +66,32 @@
   margin-bottom: $spacing-md;
 }
 
-.issueTags {
+.issueMeta {
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
+  gap: $spacing-lg;
 }
 
-.sectionCard {
-  background-color: $color-bg-card;
-  border-radius: $radius-md;
-  box-shadow: $shadow-card;
-  padding: $spacing-lg;
-  margin-bottom: $spacing-md;
+.issueMetaItem {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
 }
 
 .sectionTitle {
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
-  margin-bottom: $spacing-md;
+  margin: $spacing-lg $page-padding $spacing-md;
 }
 
-.sectionTitleRequired::before {
-  content: '*';
-  color: $color-error;
-  margin-right: 4rpx;
+.formCard {
+  margin: 0 $page-padding $spacing-md;
+  padding: $spacing-lg;
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
 }
 
-.formRow {
+.formItem {
   margin-bottom: $spacing-lg;
 
   &:last-child {
@@ -104,72 +118,145 @@
   box-sizing: border-box;
 }
 
-.statusSelector {
+.formTextarea {
+  width: 100%;
+  min-height: 180rpx;
+  padding: $spacing-md;
+  background-color: $color-bg-gray;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  box-sizing: border-box;
+  border: none;
+}
+
+.statusSelect {
   display: flex;
   gap: $spacing-sm;
   flex-wrap: wrap;
 }
 
-.statusItem {
-  padding: 12rpx 24rpx;
+.statusOption {
+  padding: 12rpx 28rpx;
   border: 2rpx solid $color-border;
   border-radius: $radius-button;
   font-size: $font-size-md;
   color: $color-text-secondary;
   transition: all $transition-fast;
+  background-color: $color-bg-card;
 
   &:active {
     opacity: 0.8;
   }
 }
 
-.statusItemActive {
-  border-color: transparent;
+.statusOptionActive {
   font-weight: $font-weight-medium;
+  border-color: transparent;
 }
 
-.statusPending {
+.statusOption-warning {
   background-color: $color-warning-bg;
   color: $color-warning;
+  border-color: transparent;
 }
 
-.statusProcessing {
+.statusOption-info {
   background-color: $color-primary-bg;
   color: $color-primary;
+  border-color: transparent;
 }
 
-.statusCompleted {
+.statusOption-success {
   background-color: $color-success-bg;
   color: $color-success;
+  border-color: transparent;
 }
 
-.statusVerified {
-  background-color: $color-success-bg;
-  color: $color-success;
+.timelineCard {
+  margin: 0 $page-padding $spacing-md;
+  padding: $spacing-lg;
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
 }
 
-.textareaWrap {
+.timelineItem {
+  position: relative;
+  padding-left: 40rpx;
+  padding-bottom: $spacing-lg;
+
+  &:last-child {
+    padding-bottom: 0;
+
+    .timelineLine {
+      display: none;
+    }
+  }
+}
+
+.timelineDot {
+  position: absolute;
+  left: 0;
+  top: 8rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: $color-primary;
+  z-index: 1;
+}
+
+.timelineLine {
+  position: absolute;
+  left: 7rpx;
+  top: 24rpx;
+  bottom: 0;
+  width: 2rpx;
+  background-color: $color-border;
+}
+
+.timelineContent {
   background-color: $color-bg-gray;
   border-radius: $radius-md;
   padding: $spacing-md;
 }
 
-.textarea {
-  width: 100%;
-  min-height: 180rpx;
-  font-size: $font-size-md;
-  color: $color-text-primary;
-  line-height: 1.6;
-  background: transparent;
-  border: none;
-  outline: none;
+.timelineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
 }
 
-.wordCount {
-  text-align: right;
+.timelineOperator {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.timelineTime {
   font-size: $font-size-sm;
   color: $color-text-tertiary;
-  margin-top: $spacing-sm;
+}
+
+.timelineNote {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  margin-bottom: $spacing-sm;
+}
+
+.timelineStatus {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.timelineStatusBadge {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
 }
 
 .bottomBar {
@@ -186,26 +273,8 @@
   z-index: 100;
 }
 
-.cancelBtn {
+.saveBtn {
   flex: 1;
-  height: $button-height-lg;
-  background-color: $color-bg-gray;
-  color: $color-text-secondary;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-medium;
-  border-radius: $radius-button;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all $transition-base;
-
-  &:active {
-    opacity: 0.8;
-  }
-}
-
-.submitBtn {
-  flex: 2;
   height: $button-height-lg;
   background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
   color: $color-text-white;
@@ -215,7 +284,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all $transition-base;
 
   &:active {
     opacity: 0.9;
