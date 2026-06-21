@@ -1,0 +1,48 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.tagText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.sm {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-sm;
+}
+
+.md {
+  padding: 8rpx 16rpx;
+  border-radius: $radius-md;
+}
+
+.blue {
+  background-color: $color-tag-blue-bg;
+  color: $color-tag-blue-text;
+}
+
+.green {
+  background-color: $color-tag-green-bg;
+  color: $color-tag-green-text;
+}
+
+.orange {
+  background-color: $color-tag-orange-bg;
+  color: $color-tag-orange-text;
+}
+
+.red {
+  background-color: $color-tag-red-bg;
+  color: $color-tag-red-text;
+}
+
+.gray {
+  background-color: $color-tag-gray-bg;
+  color: $color-tag-gray-text;
+}

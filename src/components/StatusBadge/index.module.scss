@@ -1,0 +1,61 @@
+@use '@/styles/variables.scss' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 8rpx;
+}
+
+.badgeText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.success {
+  background-color: $color-success-bg;
+  color: $color-success;
+  .dot {
+    background-color: $color-success;
+  }
+}
+
+.warning {
+  background-color: $color-warning-bg;
+  color: $color-warning;
+  .dot {
+    background-color: $color-warning;
+  }
+}
+
+.error {
+  background-color: $color-error-bg;
+  color: $color-error;
+  .dot {
+    background-color: $color-error;
+  }
+}
+
+.info {
+  background-color: $color-primary-bg;
+  color: $color-primary;
+  .dot {
+    background-color: $color-primary;
+  }
+}
+
+.default {
+  background-color: $color-tag-gray-bg;
+  color: $color-tag-gray-text;
+  .dot {
+    background-color: $color-tag-gray-text;
+  }
+}

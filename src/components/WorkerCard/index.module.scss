@@ -1,0 +1,101 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background-color: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg;
+  padding-bottom: $spacing-md;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.avatarText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+  @include text-ellipsis;
+}
+
+.idTail {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.cardBody {
+  padding: 0 $spacing-lg $spacing-md;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xs 0;
+}
+
+.label {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.value {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  max-width: 400rpx;
+  text-align: right;
+}
+
+.valueHighlight {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  text-align: right;
+}
+
+.cardFooter {
+  padding: $spacing-md $spacing-lg;
+  border-top: 1rpx solid $color-divider;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.actionText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}

@@ -1,0 +1,52 @@
+@use '@/styles/variables.scss' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88rpx;
+  padding: 0 $spacing-md;
+  background-color: $color-bg-card;
+  position: relative;
+}
+
+.leftArea {
+  width: 80rpx;
+  display: flex;
+  align-items: center;
+}
+
+.backBtn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+
+  &:active {
+    background-color: $color-bg-hover;
+  }
+}
+
+.backIcon {
+  font-size: 36rpx;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.rightArea {
+  width: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
