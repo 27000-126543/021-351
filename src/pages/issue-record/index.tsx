@@ -4,8 +4,10 @@ import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import { ISSUE_TAGS } from '@/types';
-import type { IssueType } from '@/types';
+import type { IssueType, IssueRecord } from '@/types';
 import { getWorkerById } from '@/data/workers';
+import { useInspectionStore } from '@/store';
+import { generateId } from '@/utils';
 
 const issueTypes: { type: IssueType; icon: string; label: string }[] = [
   { type: 'salary', icon: '💰', label: '工资问题' },
@@ -16,32 +18,37 @@ const issueTypes: { type: IssueType; icon: string; label: string }[] = [
 
 const IssueRecordPage: React.FC = () => {
   const router = useRouter();
+  const { addIssue, currentReport } = useInspectionStore();
+
   const [issueType, setIssueType] = useState<IssueType>('salary');
   const [description, setDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [workerId, setWorkerId] = useState('');
   const [workerName, setWorkerName] = useState('');
   const [workerTeam, setWorkerTeam] = useState('');
 
   useEffect(() => {
-    const { workerId, workerName: name } = router.params;
-    console.log('[IssueRecord] 参数:', { workerId, name });
+    const { workerId: wid, workerName: name } = router.params;
+    console.log('[IssueRecord] 参数:', { workerId: wid, name });
 
-    if (name) {
-      setWorkerName(decodeURIComponent(name));
-    }
-    
-    if (workerId) {
-      const worker = getWorkerById(workerId);
+    if (wid) {
+      setWorkerId(wid);
+      const worker = getWorkerById(wid);
       if (worker) {
         setWorkerName(worker.name);
         setWorkerTeam(worker.team);
       }
     }
+    
+    if (name && !workerName) {
+      setWorkerName(decodeURIComponent(name));
+    }
   }, [router.params]);
 
   const handleTypeChange = (type: IssueType) => {
-    setissueType(type);
+    console.log('[IssueRecord] 切换问题类型:', type);
+    setIssueType(type);
   };
 
   const handleTagToggle = (tag: string) => {
@@ -81,12 +88,25 @@ const IssueRecordPage: React.FC = () => {
       return;
     }
 
-    console.log('[IssueRecord] 提交问题记录:', {
-      issueType,
-      description,
-      tags: selectedTags,
-      photos,
-    });
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const newIssue: IssueRecord = {
+      id: generateId(),
+      workerId: workerId || undefined,
+      workerName: workerName || undefined,
+      type: issueType,
+      description: description.trim(),
+      photos: [...photos],
+      tags: [...selectedTags],
+      createTime: timeStr,
+      inspector: '张督查',
+    };
+
+    console.log('[IssueRecord] 提交问题记录:', newIssue);
+    console.log('[IssueRecord] 当前纪要:', currentReport?.id, currentReport?.projectName);
+
+    addIssue(newIssue);
 
     Taro.showToast({
       title: '记录已保存',

@@ -6,9 +6,12 @@ import StatusBadge from '@/components/StatusBadge';
 import { mockProjects, getProjectById, getProjectByCode } from '@/data/projects';
 import type { Project } from '@/types';
 import { formatMoney, getSalaryStatusText } from '@/utils';
+import { useInspectionStore } from '@/store';
 
 const ProjectDetailPage: React.FC = () => {
   const router = useRouter();
+  const { createReport, setCurrentReport, currentReport, resetAll } = useInspectionStore();
+
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -32,13 +35,57 @@ const ProjectDetailPage: React.FC = () => {
   }, [router.params]);
 
   const handleStartInspect = () => {
+    if (!project) return;
+    
+    if (!currentReport || currentReport.projectId !== project.id) {
+      console.log('[ProjectDetail] 抽查前自动创建纪要');
+      createReport(project.id, project.name);
+    }
+    
     Taro.switchTab({ url: '/pages/inspect/index' });
   };
 
   const handleGenerateReport = () => {
+    if (!project) return;
+    
+    console.log('[ProjectDetail] 生成核验纪要:', project.id, project.name);
+    
+    if (currentReport && currentReport.projectId === project.id) {
+      Taro.showModal({
+        title: '已有当前纪要',
+        content: '检测到该项目已有正在进行的核验纪要，是否继续使用？',
+        confirmText: '继续使用',
+        cancelText: '新建纪要',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({
+              url: `/pages/report-detail/index?id=${currentReport.id}`,
+            });
+          } else {
+            resetAll();
+            const newReport = createReport(project.id, project.name);
+            Taro.navigateTo({
+              url: `/pages/report-detail/index?id=${newReport.id}`,
+            });
+          }
+        },
+      });
+      return;
+    }
+
+    const newReport = createReport(project.id, project.name);
+    console.log('[ProjectDetail] 已创建新纪要:', newReport.id);
+
     Taro.showToast({
-      title: '功能开发中',
-      icon: 'none',
+      title: '纪要已生成',
+      icon: 'success',
+      success: () => {
+        setTimeout(() => {
+          Taro.navigateTo({
+            url: `/pages/report-detail/index?id=${newReport.id}`,
+          });
+        }, 800);
+      },
     });
   };
 
@@ -67,12 +114,19 @@ const ProjectDetailPage: React.FC = () => {
     );
   }
 
+  const hasActiveReport = currentReport && currentReport.projectId === project.id;
+
   return (
     <View className={styles.page}>
       <View className={styles.projectHeader}>
         <Text className={styles.projectName}>{project.name}</Text>
         <Text className={styles.projectCode}>项目编号：{project.code}</Text>
         <Text className={styles.projectAddress}>📍 {project.address}</Text>
+        {hasActiveReport && (
+          <Text style={{ marginTop: 16, fontSize: 24, color: 'rgba(255,255,255,0.9)' }}>
+            ✅ 已关联核验纪要
+          </Text>
+        )}
       </View>
 
       <ScrollView scrollY className={styles.content}>
@@ -150,7 +204,7 @@ const ProjectDetailPage: React.FC = () => {
 
       <View className={styles.bottomBar}>
         <View className={styles.secondaryBtn} onClick={handleGenerateReport}>
-          生成纪要
+          {hasActiveReport ? '查看纪要' : '生成纪要'}
         </View>
         <View className={styles.primaryBtn} onClick={handleStartInspect}>
           开始抽查

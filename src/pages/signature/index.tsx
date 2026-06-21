@@ -1,20 +1,36 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, Canvas } from '@tarojs/components';
 import Taro, { useRouter, useReady } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
+import { useInspectionStore } from '@/store';
+
+const roleSignMap: Record<string, string> = {
+  project: '项目部负责人',
+  inspector: '张督查',
+};
 
 const SignaturePage: React.FC = () => {
   const router = useRouter();
+  const { 
+    setProjectSign, 
+    setInspectorSign, 
+    currentReport 
+  } = useInspectionStore();
+
   const canvasRef = useRef<any>(null);
   const ctxRef = useRef<any>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSigned, setHasSigned] = useState(false);
   const [penColor, setPenColor] = useState('#1d2129');
-  const [penWidth, setPenWidth] = useState(4);
 
-  const role = router.params.role || 'inspector';
+  const role = (router.params.role as 'project' | 'inspector') || 'inspector';
+  const reportId = router.params.reportId;
   const roleText = role === 'project' ? '项目部' : '检查人员';
+
+  const existingSign = role === 'project' 
+    ? currentReport?.projectSign 
+    : currentReport?.inspectorSign;
 
   useReady(() => {
     initCanvas();
@@ -36,25 +52,16 @@ const SignaturePage: React.FC = () => {
           ctx.scale(dpr, dpr);
           
           ctx.strokeStyle = penColor;
-          ctx.lineWidth = penWidth;
+          ctx.lineWidth = 4;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
           
           ctxRef.current = ctx;
           canvasRef.current = canvas;
           
-          console.log('[Signature] Canvas 初始化完成');
+          console.log('[Signature] Canvas 初始化完成, role:', role, 'existingSign:', existingSign);
         }
       });
-  };
-
-  const getTouchPosition = (e: any) => {
-    const touch = e.touches[0] || e.changedTouches[0];
-    const query = Taro.createSelectorQuery();
-    return {
-      x: touch.x,
-      y: touch.y,
-    };
   };
 
   const handleTouchStart = (e: any) => {
@@ -127,13 +134,6 @@ const SignaturePage: React.FC = () => {
     }
   };
 
-  const handleWidthChange = (width: number) => {
-    setPenWidth(width);
-    if (ctxRef.current) {
-      ctxRef.current.lineWidth = width;
-    }
-  };
-
   const handleCancel = () => {
     Taro.navigateBack();
   };
@@ -147,15 +147,25 @@ const SignaturePage: React.FC = () => {
       return;
     }
 
-    console.log('[Signature] 确认签字');
+    const signText = roleSignMap[role] || '已签字';
     
+    console.log('[Signature] 确认签字, role:', role, 'reportId:', reportId);
+    
+    if (role === 'project') {
+      setProjectSign(signText);
+      console.log('[Signature] 已保存项目部签字:', signText);
+    } else {
+      setInspectorSign(signText);
+      console.log('[Signature] 已保存检查人员签字:', signText);
+    }
+
     Taro.showToast({
-      title: '签字成功',
+      title: `${roleText}签字成功`,
       icon: 'success',
       success: () => {
         setTimeout(() => {
           Taro.navigateBack();
-        }, 1500);
+        }, 1200);
       },
     });
   };
@@ -164,7 +174,9 @@ const SignaturePage: React.FC = () => {
     <View className={styles.page}>
       <View className={styles.signInfo}>
         <Text className={styles.signTitle}>{roleText}签字</Text>
-        <Text className={styles.signTip}>请在下方区域手写签名</Text>
+        <Text className={styles.signTip}>
+          {existingSign ? `已有签字记录，可重新签名覆盖` : '请在下方区域手写签名'}
+        </Text>
       </View>
 
       <View className={styles.canvasWrap}>
